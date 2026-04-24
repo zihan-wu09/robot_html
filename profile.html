@@ -330,8 +330,16 @@
                 localStorage.setItem('userInfo_' + currentUser, JSON.stringify(info));
                 alert('信息已保存');
             });
-            $('.logout-btn').on('click', () => {
+            $('.logout-btn').on('click', async () => {
+                try {
+                    if (window.SupabaseAPI?.supabase?.auth) {
+                        await window.SupabaseAPI.supabase.auth.signOut();
+                    }
+                } catch (e) {
+                    console.warn('Supabase退出异常:', e);
+                }
                 localStorage.removeItem('currentUser');
+                localStorage.removeItem('supabase_user');
                 alert('已退出');
                 window.location.href = 'denglu-zhuce/denglu-zhuce.html';
             });
