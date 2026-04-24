@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机知智汇 - 机器人数据库</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../js/jquery.maphilight.min.js"></script>
+    <script src="../js/auth.js"></script>
+    <style>
+        .search-main {
+            background-image: url("../images/主页大背景.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 100px 5vw 60px;
+            background-color: transparent;
+        }
+        /* 清除搜索状态按钮 → 蓝色 */
+        #clear-search-state {
+            margin-left: 10px;
+            padding: 0 24px;
+            height: 44px;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            background-color: #2a6f97;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #clear-search-state:hover {
+            background-color: #1e4f6e;
+        }
+        /* 检索按钮 → 蓝色 */
+        .search-box button {
+            padding: 0 24px;
+            height: 44px;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            background-color: #2a6f97;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-box button:hover {
+            background-color: #1e4f6e;
+        }
+        .search-box input {
+            height: 44px;
+            padding: 0 12px;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 14px;
+            width: 280px;
+        }
+        #filter-tip {
+            margin: 10px auto;
+            padding: 5px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: none;
+            max-width: 1200px;
+        }
+        /* 表格名称文字 → 蓝色 */
+        .heritage-table .name {
+            color: #2a6f97;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .heritage-table .name:hover {
+            text-decoration: underline;
+        }
+        .dynamic-tag-btn {
+            margin-left: 10px;
+            padding: 2px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        /* 清除标签按钮 → 蓝色 */
+        .dynamic-tag-btn.clear-btn {
+            background-color: #2a6f97;
+            color: white;
+            border-color: #1e4f6e;
+        }
+        .dynamic-tag-btn.restore-btn {
+            background-color: #28a745;
+            color: white;
+            border-color: #218838;
+        }
+        .dynamic-tag-btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>机知智汇</h1>
+        <ul>
+            <li><a href="../index.html">首页</a></li>
+            <li id="user-link"><a href="../denglu-zhuce/denglu-zhuce.html">用户登录与注册</a></li>
+            <li><a href="../women/women.html">关于我们</a></li>
+            <li><a href="../fenleijiansuo/fenleijiansuo.html">分类检索</a></li>
+        </ul>
+    </header>
+
+    <main class="search-main">
+        <section class="search-filter">
+            <div class="filter-item">
+                <label>机器人知识分类：</label>
+                <select name="category" id="categorySelect">
+                    <option value="">全部</option>
+                    <option value="主要种类">主要种类</option>
+                    <option value="发展阶段">发展阶段</option>
+                    <option value="应用场景">应用场景</option>
+                    <option value="国产机器人明星">国产机器人明星</option>
+                    <option value="核心零部件">核心零部件</option>
+                    <option value="行动方式种类">行动方式种类</option>
+                    <option value="专利数量">专利数量</option>
+                    <option value="国家级实验室">国家级实验室</option>
+                    <option value="有趣知识">有趣知识</option>
+                </select>
+            </div>
+            <div class="filter-item search-box">
+                <input type="text" id="searchInput" placeholder="请输入你感兴趣的机器人内容">
+                <button id="search-btn">检索</button>
+                <button id="clear-search-state">清除搜索状态</button>
+            </div>
+        </section>
+
+        <section class="filter-tip" id="filter-tip"></section>
+
+        <section class="heritage-table-wrap">
+            <table class="heritage-table" id="dynamicTable">
+                <thead id="tableHeader"></thead>
+                <tbody id="heritage-tbody"></tbody>
+              </table>
+        </section>
+
+        <section class="pagination-wrap">
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p><a href="https://baike.baidu.com/item/%E6%9C%BA%E5%99%A8%E4%BA%BA/888">点击这里了解更多机器人知识！</a></p>
+    </footer>
+
+    <script>
+        // ===== 完整机器人数据集（同步自 robot-topics-data.js） =====
+        const robotData = [
+            // 主要种类 (10项)
+            { name: "工业机器人", category: "主要种类", col1: "应用最广，高精度多轴控制", col2: "焊接、装配、喷涂", summary: "工业制造核心装备" },
+            { name: "服务机器人", category: "主要种类", col1: "家用、商用、情感陪伴", col2: "人机交互、智能导航", summary: "面向非工业场景的智能服务" },
+            { name: "特种机器人", category: "主要种类", col1: "消防、侦察、水下作业", col2: "防爆耐高温", summary: "极端环境作业" },
+            { name: "协作机器人", category: "主要种类", col1: "柔性装配、精密操作", col2: "轻量化、人机协作", summary: "与人协同作业" },
+            { name: "医疗机器人", category: "主要种类", col1: "微创介入、远程诊疗", col2: "手术导航、康复辅助", summary: "医疗健康领域" },
+            { name: "教育机器人", category: "主要种类", col1: "激发创新思维", col2: "编程教育、STEAM教学", summary: "教育娱乐工具" },
+            { name: "物流机器人", category: "主要种类", col1: "智能仓储、无人配送", col2: "AGV/AMR技术", summary: "自动化物流搬运" },
+            { name: "农业机器人", category: "主要种类", col1: "智慧种植、无人农场", col2: "植保喷洒、采摘播种", summary: "智慧农业装备" },
+            { name: "建筑机器人", category: "主要种类", col1: "高危作业、精准施工", col2: "砌墙焊接、测量巡检", summary: "建筑工业化装备" },
+            { name: "外骨骼机器人", category: "主要种类", col1: "医疗康复、工业防护", col2: "康复助力、负重辅助", summary: "可穿戴辅助设备" },
+
+            // 发展阶段 (4项)
+            { name: "萌芽期（理论探索）", category: "发展阶段", col1: "1950s-1960s", col2: "机器人基础理论、控制算法雏形", summary: "技术萌芽阶段" },
+            { name: "产业化初期（工业应用）", category: "发展阶段", col1: "1970s-1980s", col2: "汽车制造、点焊喷涂", summary: "工业机器人起步" },
+            { name: "智能化起步（传感器融合）", category: "发展阶段", col1: "1990s-2010s", col2: "视觉、力觉集成，初步自主", summary: "感知能力提升" },
+            { name: "AI爆发期（自主决策）", category: "发展阶段", col1: "2020s至今", col2: "深度学习、多模态交互、云端协同", summary: "智能决策时代" },
+
+            // 应用场景 (14项，依照最新数据)
+            { name: "智慧交通", category: "应用场景", col1: "自动驾驶、车路协同", col2: "交通管控、无人驾驶", summary: "交通领域应用" },
+            { name: "智慧医疗", category: "应用场景", col1: "手术机器人、康复辅助", col2: "远程诊疗、精准医疗", summary: "医疗健康场景" },
+            { name: "智慧农业", category: "应用场景", col1: "精准喷洒、无人播种", col2: "作物监测、智能灌溉", summary: "农业自动化" },
+            { name: "工业质检", category: "应用场景", col1: "机器视觉缺陷检测", col2: "自动分拣、质量控制", summary: "工业质量保障" },
+            { name: "家庭服务", category: "应用场景", col1: "扫地机器人、智能清洁", col2: "语音控制、自主导航", summary: "家庭生活辅助" },
+            { name: "安防巡检", category: "应用场景", col1: "防爆巡检、热成像监测", col2: "预警、环境感知", summary: "安全监控与巡检" },
+            { name: "智慧物流", category: "应用场景", col1: "仓储分拣、无人配送", col2: "智能调度、货到人系统", summary: "智慧物流新形态" },
+            { name: "智能餐饮", category: "应用场景", col1: "送餐、烹饪、后厨辅助", col2: "降本增效、标准化服务", summary: "餐饮行业变革" },
+            { name: "建筑施工", category: "应用场景", col1: "砌墙、焊接、测量巡检", col2: "高危作业、精准施工", summary: "建筑工业化" },
+            { name: "能源电力", category: "应用场景", col1: "电站巡检、线路检测", col2: "无人值守、故障预警", summary: "能源设施运维" },
+            { name: "教育实训", category: "应用场景", col1: "实验教学、编程实训", col2: "沉浸式学习、技能培养", summary: "教育领域创新" },
+            { name: "商超零售", category: "应用场景", col1: "导购、盘点、库存管理", col2: "数字化运营、客流分析", summary: "零售数字化转型" },
+            { name: "养老助残", category: "应用场景", col1: "陪伴护理、行动辅助", col2: "生活照料、健康监测", summary: "康养服务机器人" },
+            { name: "环保环卫", category: "应用场景", col1: "道路清扫、垃圾分拣、河道清污", col2: "无人保洁、生态治理", summary: "环保领域应用" },
+
+            // 国产机器人明星 (14项)
+            { name: "新松机器人", category: "国产机器人明星", col1: "工业机器人领军企业", col2: "中国机器人产业龙头，特种机器人代表", summary: "国产机器人领军企业" },
+            { name: "优必选", category: "国产机器人明星", col1: "人形机器人先锋", col2: "AI教育、消费级机器人，春晚明星", summary: "人形机器人先锋" },
+            { name: "大疆创新", category: "国产机器人明星", col1: "无人机及视觉导航王者", col2: "全球消费级无人机霸主，进军机器人", summary: "机器人视觉导航专家" },
+            { name: "科大讯飞", category: "国产机器人明星", col1: "机器人语音交互方案", col2: "多模态AI，智能语音领跑者", summary: "智能语音领军者" },
+            { name: "埃夫特", category: "国产机器人明星", col1: "工业机器人新锐", col2: "喷涂、焊接机器人，国产替代先锋", summary: "工业机器人新锐" },
+            { name: "哈工大机器人", category: "国产机器人明星", col1: "产学研结合典范", col2: "空间机器人、医疗机器人技术领先", summary: "技术领先科研机构" },
+            { name: "猎户星空", category: "国产机器人明星", col1: "服务机器人创新者", col2: "智能接待、递送机器人，AI赋能", summary: "服务机器人创新者" },
+            { name: "宇树科技", category: "国产机器人明星", col1: "四足与人形机器人", col2: "高机动平台与通用具身方案", summary: "高性能机器人平台" },
+            { name: "蔚蓝智能", category: "国产机器人明星", col1: "农业与巡检机器人", col2: "复杂地形作业与自主导航", summary: "特种环境应用专家" },
+            { name: "极智嘉", category: "国产机器人明星", col1: "物流仓储机器人", col2: "AMR调度与智能仓储", summary: "智能物流方案商" },
+            { name: "普渡科技", category: "国产机器人明星", col1: "商用服务机器人", col2: "餐饮配送与室内导航", summary: "餐饮服务机器人" },
+            { name: "节卡机器人", category: "国产机器人明星", col1: "协作机器人品牌", col2: "轻量化与人机协作安全", summary: "协作机器人新锐" },
+            { name: "遨博智能", category: "国产机器人明星", col1: "协作机器人方案商", col2: "柔性装配与精密操作", summary: "协作机器人供应商" },
+            { name: "新时达", category: "国产机器人明星", col1: "工业与控制系统", col2: "运动控制与机器人系统", summary: "工业控制系统专家" },
+
+            // 核心零部件 (12项)
+            { name: "伺服电机", category: "核心零部件", col1: "高动态响应", col2: "精准运动控制核心", summary: "运动控制核心" },
+            { name: "减速器", category: "核心零部件", col1: "谐波/RV减速器", col2: "高刚度低背隙传动", summary: "传动关键部件" },
+            { name: "控制器", category: "核心零部件", col1: "运动控制核心", col2: "实时性、开放性", summary: "机器人大脑" },
+            { name: "高精度编码器", category: "核心零部件", col1: "位置速度反馈", col2: "闭环控制核心元件", summary: "反馈测量元件" },
+            { name: "末端执行器", category: "核心零部件", col1: "夹爪/灵巧手", col2: "作业执行终端部件", summary: "执行末端" },
+            { name: "激光雷达", category: "核心零部件", col1: "高精度3D感知", col2: "自动驾驶、导航定位", summary: "环境感知传感器" },
+            { name: "视觉传感器", category: "核心零部件", col1: "工业相机", col2: "机器视觉缺陷检测", summary: "视觉感知核心" },
+            { name: "力控传感器", category: "核心零部件", col1: "六维力觉感知", col2: "精密装配、人机协作", summary: "力觉反馈" },
+            { name: "IMU惯性测量单元", category: "核心零部件", col1: "姿态运动感知", col2: "定位导航、姿态稳定", summary: "惯性导航元件" },
+            { name: "工业通信模块", category: "核心零部件", col1: "实时总线传输", col2: "多部件协同控制", summary: "通信互联" },
+            { name: "功能安全模块", category: "核心零部件", col1: "碰撞检测与防护", col2: "人机安全合规保障", summary: "安全组件" },
+            { name: "电池模组", category: "核心零部件", col1: "高能量密度", col2: "移动机器人动力核心", summary: "能源核心" },
+
+            // 行动方式种类 (10项)
+            { name: "轮式机器人", category: "行动方式种类", col1: "移动速度快", col2: "适用于室内外平坦路面，如AGV", summary: "常见移动方式" },
+            { name: "履带式机器人", category: "行动方式种类", col1: "越野能力强", col2: "适应复杂地形，如救援机器人", summary: "复杂地形应用" },
+            { name: "足式机器人", category: "行动方式种类", col1: "仿生行走", col2: "四足、双足机器人，如波士顿动力", summary: "仿生移动" },
+            { name: "爬壁式机器人", category: "行动方式种类", col1: "壁面吸附行走", col2: "幕墙检测、船舶除锈、储罐探伤", summary: "垂直立面作业" },
+            { name: "轨道式机器人", category: "行动方式种类", col1: "沿轨精准移动", col2: "管廊巡检、变电站监测、机房运维", summary: "固定路线移动" },
+            { name: "蠕动式机器人", category: "行动方式种类", col1: "柔性蠕动行进", col2: "管道内窥、肠道检测、缝隙勘探", summary: "狭小空间通行" },
+            { name: "水下推进式机器人", category: "行动方式种类", col1: "螺旋桨喷泵推进", col2: "水下勘探、海洋科考、管道检测", summary: "水下作业" },
+            { name: "仿生式机器人", category: "行动方式种类", col1: "模仿生物运动", col2: "蛇形、鱼形、昆虫机器人", summary: "特殊环境应用" },
+            { name: "飞行式机器人", category: "行动方式种类", col1: "空中飞行", col2: "无人机、旋翼机器人", summary: "空中作业" },
+            { name: "复合式机器人", category: "行动方式种类", col1: "多种方式组合", col2: "轮履复合、飞行爬行等", summary: "多模态移动" },
+
+            // 专利数量 (16项，保持原有重复项)
+            { name: "控制与算法", category: "专利数量", col1: "运动规划/SLAM/力控", col2: "控制学派与 AI 路线交汇", summary: "核心算法专利" },
+            { name: "感知与导航", category: "专利数量", col1: "视觉/雷达/多传感融合", col2: "环境理解与路径生成", summary: "感知导航专利" },
+            { name: "人机协作安全", category: "专利数量", col1: "安全标准与机制", col2: "碰撞检测/协作等级/功能安全", summary: "人机安全专利" },
+            { name: "末端执行与触觉", category: "专利数量", col1: "夹持/灵巧手/触觉", col2: "抓取策略与触觉阵列", summary: "执行器专利" },
+            { name: "材料与制造工艺", category: "专利数量", col1: "结构/减速/电机", col2: "轻量化与高刚度制造", summary: "材料工艺专利" },
+            { name: "专利质量与引证", category: "专利数量", col1: "授权率/引证网络", col2: "同族规模与影响力", summary: "专利质量分析" },
+            { name: "主要申请人布局", category: "专利数量", col1: "头部企业/高校", col2: "专利组合与研发路径", summary: "申请人策略" },
+            { name: "地域与同族分布", category: "专利数量", col1: "全球/区域差异", col2: "同族覆盖与市场策略", summary: "专利地域分布" },
+            { name: "授权与维持年限", category: "专利数量", col1: "专利寿命与价值", col2: "生命周期与续费行为", summary: "专利维持分析" },
+            { name: "热点与趋势", category: "专利数量", col1: "近五年增长热点", col2: "技术拐点与投资偏好", summary: "发展趋势" },
+            { name: "特种机器人", category: "专利数量", col1: "防爆救援等领域", col2: "军用与消防场景专利增长", summary: "特种机器人专利" },
+            { name: "家用机器人", category: "专利数量", col1: "清洁与陪伴", col2: "智能家居生态带动布局", summary: "家用机器人专利" },
+            { name: "特种机器人", category: "专利数量", col1: "防爆救援等领域", col2: "军用与消防场景专利增长", summary: "特种机器人专利(重复)" },
+            { name: "家用机器人", category: "专利数量", col1: "清洁与陪伴", col2: "智能家居生态带动布局", summary: "家用机器人专利(重复)" },
+            { name: "教育机器人", category: "专利数量", col1: "编程与教具", col2: "软硬件一体方案专利上升", summary: "教育机器人专利" },
+            { name: "物流机器人", category: "专利数量", col1: "AGV/AMR系统", col2: "调度算法与路径规划", summary: "物流机器人专利" },
+
+            // 国家级实验室 (16项)
+            { name: "机器人学国家重点实验室", category: "国家级实验室", col1: "中科院沈阳自动化所", col2: "机器人基础理论与核心应用研究", summary: "国家级科研机构" },
+            { name: "机器人技术与系统国家重点实验室", category: "国家级实验室", col1: "哈尔滨工业大学", col2: "空间机器人、医疗机器人技术研发", summary: "高校重点实验室" },
+            { name: "先进机器人实验室", category: "国家级实验室", col1: "清华大学", col2: "仿生机器人、AI智能控制技术", summary: "前沿技术研究" },
+            { name: "机器人技术与系统国家重点实验室", category: "国家级实验室", col1: "北京航空航天大学", col2: "机器人先进控制与系统集成", summary: "航空航天特色" },
+            { name: "智能制造系统国家重点实验室", category: "国家级实验室", col1: "华中科技大学", col2: "智能制造装备与机器人系统研发", summary: "智能制造平台" },
+            { name: "机器人与智能装备创新中心", category: "国家级实验室", col1: "上海", col2: "机器人核心装备与关键部件攻关", summary: "产业创新中心" },
+            { name: "工业自动化与信息系统实验室", category: "国家级实验室", col1: "西安", col2: "自动化控制与工业互联网融合", summary: "工业自动化" },
+            { name: "信息与控制国家重点实验室", category: "国家级实验室", col1: "浙江大学", col2: "机器人运动控制与多传感融合", summary: "控制与感知" },
+            { name: "模式识别国家重点实验室", category: "国家级实验室", col1: "中科院自动化所", col2: "机器视觉识别与自主导航技术", summary: "视觉关键技术" },
+            { name: "智能感知与计算实验室", category: "国家级实验室", col1: "中国科学技术大学", col2: "多模态感知与机器人智能计算", summary: "感知计算" },
+            { name: "人工智能与机器人联合实验室", category: "国家级实验室", col1: "上海人工智能实验室", col2: "具身智能与人机交互技术研发", summary: "AI+机器人" },
+            { name: "机械系统与振动国家重点实验室", category: "国家级实验室", col1: "上海交通大学", col2: "机器人动力学、振动控制与性能优化", summary: "动力学研究" },
+            { name: "复杂系统智能控制与决策国家重点实验室", category: "国家级实验室", col1: "北京理工大学", col2: "无人系统、机器人智能决策与自主控制", summary: "智能决策" },
+            { name: "机械制造系统工程国家重点实验室", category: "国家级实验室", col1: "西安交通大学", col2: "智能制造机器人、精密加工与装备集成", summary: "制造系统工程" },
+            { name: "机械传动国家重点实验室", category: "国家级实验室", col1: "重庆大学", col2: "机器人传动系统、精密减速器核心技术研发", summary: "传动核心技术" },
+            { name: "国家机器人创新中心", category: "国家级实验室", col1: "中科院沈阳自动化所牵头", col2: "机器人关键共性技术攻关与产业落地转化", summary: "国家级创新平台" },
+
+            // 有趣知识 (20项)
+            { name: "第一个机器人", category: "有趣知识", col1: "1921年捷克剧作家恰佩克", col2: "“机器人”一词首次出现于《罗素姆万能机器人》", summary: "机器人名称起源" },
+            { name: "机器人三定律", category: "有趣知识", col1: "阿西莫夫提出", col2: "保护人类、服从命令、自我保存", summary: "机器人伦理基石" },
+            { name: "会跳舞的机器人", category: "有趣知识", col1: "波士顿动力Atlas", col2: "后空翻、跑酷，震惊世界", summary: "动态控制巅峰" },
+            { name: "机器人会做梦吗", category: "有趣知识", col1: "AI自我学习", col2: "强化学习模型会“梦境训练”", summary: "人工智能趣闻" },
+            { name: "仿生机器人", category: "有趣知识", col1: "模仿动物", col2: "机器狗、机器鱼、机器鸟", summary: "仿生学应用" },
+            { name: "太空机器人", category: "有趣知识", col1: "火星车、机械臂", col2: "好奇号、祝融号都是机器人", summary: "深空探索" },
+            { name: "医疗机器人", category: "有趣知识", col1: "达芬奇手术系统", col2: "微创手术，精准操作", summary: "医疗科技革命" },
+            { name: "机器人奥运会", category: "有趣知识", col1: "RoboCup", col2: "足球机器人、救援机器人比赛", summary: "科技竞技" },
+            { name: "软体机器人", category: "有趣知识", col1: "柔性材料", col2: "抓取易碎物品，医疗康复", summary: "新型机器人" },
+            { name: "情感机器人", category: "有趣知识", col1: "Pepper、索菲亚", col2: "能识别情绪，与人交流", summary: "人机交互前沿" },
+            { name: "DARPA挑战赛", category: "有趣知识", col1: "国际顶级机器人赛事", col2: "真实灾害场景下的多步任务", summary: "顶尖赛事" },
+            { name: "协作机器人起源", category: "有趣知识", col1: "人机安全共线", col2: "力控与碰撞检测让机器人走出围栏", summary: "协作理念诞生" },
+            { name: "具身智能", category: "有趣知识", col1: "AI大模型与机器人融合", col2: "感知—决策—执行闭环", summary: "前沿技术趋势" },
+            { name: "人形机器人破局年", category: "有趣知识", col1: "产业走向真实场景", col2: "从实验室走向工厂与物流", summary: "人形机器人产业化" },
+            { name: "机器人伦理", category: "有趣知识", col1: "隐私与责任", col2: "如何在公共空间安全、合规地运行", summary: "伦理与规范" },
+            { name: "世界首台工业机器人", category: "有趣知识", col1: "1959年Unimate", col2: "全球首台量产工业机器人，落地通用汽车压铸车间", summary: "工业机器人开端" },
+            { name: "中国RoboCup世界冠军", category: "有趣知识", col1: "中科大蓝鹰队", col2: "首支夺得机器人世界杯冠军的中国队伍", summary: "中国机器人荣耀" },
+            { name: "万米深海机器人", category: "有趣知识", col1: "奋斗者号搭载作业机械臂", col2: "突破马里亚纳海沟万米极限，完成深海精准作业", summary: "深海探索壮举" },
+            { name: "核事故救灾机器人", category: "有趣知识", col1: "福岛核泄漏应急机器人", col2: "首次大规模用特种机器人处理极端核辐射场景", summary: "灾难救援先锋" },
+            { name: "书画机器人", category: "有趣知识", col1: "AI驱动的智能书画机械臂", col2: "可复刻名家笔法，完成毫米级高精度书画创作", summary: "艺术与科技结合" }
+        ];
+
+        const columnHeaders = {
+            "主要种类": { col1: "技术特点", col2: "典型应用" },
+            "发展阶段": { col1: "时间阶段", col2: "核心特征" },
+            "应用场景": { col1: "典型技术", col2: "落地行业" },
+            "国产机器人明星": { col1: "核心产品", col2: "技术优势" },
+            "核心零部件": { col1: "关键技术参数", col2: "主要应用" },
+            "行动方式种类": { col1: "行动方式", col2: "代表应用" },
+            "专利数量": { col1: "专利领域", col2: "累计数量/增长率" },
+            "国家级实验室": { col1: "依托单位", col2: "研究方向" },
+            "有趣知识": { col1: "知识标题", col2: "趣味说明" }
+        };
+        const defaultHeaders = { col1: "所属范畴", col2: "核心价值/特征" };
+
+        $(document).ready(function() {
+            let currentPage = 1;
+            const pageSize = 10;
+            let currentFilteredData = [];
+            let tagFilterList = null;
+            let lastTagFilterList = null;
+
+            function saveSearchHistory(keyword) {
+                if (!keyword || keyword.trim() === '') return;
+                let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+                const now = new Date();
+                const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+                if (history.length > 0 && history[0].keyword === keyword.trim() && (Date.now() - new Date(history[0].time).getTime()) < 3000) {
+                    return;
+                }
+                history.unshift({ keyword: keyword.trim(), time: timeStr });
+                if (history.length > 30) history = history.slice(0, 30);
+                localStorage.setItem('searchHistory', JSON.stringify(history));
+            }
+
+            function getCurrentHeaders(category) {
+                if (!category) return defaultHeaders;
+                return columnHeaders[category] || defaultHeaders;
+            }
+
+            function renderTable() {
+                const category = $("#categorySelect").val();
+                const headers = getCurrentHeaders(category);
+                $("#tableHeader").html(`
+                    <tr><th>序号</th><th>具体名称</th><th>分类</th><th>${headers.col1}</th><th>${headers.col2}</th></tr>
+                `);
+                const tbody = $('#heritage-tbody').empty();
+                const total = currentFilteredData.length;
+                if (total === 0) {
+                    tbody.append('<tr><td colspan="5" style="text-align:center;">暂无相关机器人数据</td></tr>');
+                    renderPagination();
+                    return;
+                }
+                const start = (currentPage - 1) * pageSize;
+                const pageData = currentFilteredData.slice(start, start + pageSize);
+                pageData.forEach((item, i) => {
+                    let col1Value, col2Value;
+                    if (!category) {
+                        col1Value = item.category;
+                        col2Value = item.summary || (item.col1 || '') + (item.col2 ? '；' + item.col2 : '');
+                    } else {
+                        col1Value = item.col1 || '-';
+                        col2Value = item.col2 || '-';
+                    }
+                    const tr = $(`
+                        <tr>
+                            <td>${start + i + 1}</td>
+                            <td class="name" data-name="${item.name.replace(/"/g, '&quot;')}">${item.name}</td>
+                            <td>${item.category}</td>
+                            <td>${col1Value}</td>
+                            <td>${col2Value}</td>
+                        </tr>
+                    `);
+                    tbody.append(tr);
+                });
+                tbody.off('click', '.name').on('click', '.name', function () {
+                    const name = $(this).data('name');
+                    saveSearchState();
+                    addBrowseRecord(name);
+                    location.href = `../robot-detail/detail.html?name=${encodeURIComponent(name)}`;
+                });
+                renderPagination();
+            }
+
+            function renderPagination() {
+                const el = $('#pagination').empty();
+                const total = currentFilteredData.length;
+                const totalPages = Math.ceil(total / pageSize);
+                if (totalPages <= 1) return;
+                const btn = (txt, disabled = false, active = false, fn) => {
+                    const b = $(`<button>${txt}</button>`);
+                    if (disabled) b.prop('disabled', true);
+                    if (active) b.addClass('active');
+                    if (fn) b.on('click', fn);
+                    return b;
+                };
+                el.append(btn('首页', currentPage === 1, false, () => { currentPage = 1; renderTable(); }));
+                el.append(btn('上一页', currentPage === 1, false, () => { if (currentPage > 1) { currentPage--; renderTable(); } }));
+                const pages = new Set();
+                pages.add(1);
+                for (let i = Math.max(2, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) pages.add(i);
+                pages.add(totalPages);
+                const arr = [...pages].sort((a, b) => a - b);
+                let last = 0;
+                arr.forEach(p => {
+                    if (last + 1 < p) el.append(btn('...', false, false, () => {
+                        const t = prompt(`输入页码（1-${totalPages}）`);
+                        const num = parseInt(t);
+                        if (num >= 1 && num <= totalPages) { currentPage = num; renderTable(); }
+                    }));
+                    el.append(btn(p, false, p === currentPage, () => { currentPage = p; renderTable(); }));
+                    last = p;
+                });
+                el.append(btn('下一页', currentPage === totalPages, false, () => { if (currentPage < totalPages) { currentPage++; renderTable(); } }));
+                el.append(btn('末页', currentPage === totalPages, false, () => { currentPage = totalPages; renderTable(); }));
+            }
+
+            function performSearch(saveHistory = false) {
+                const category = $("#categorySelect").val();
+                const keyword = $("#searchInput").val().trim().toLowerCase();
+                if (saveHistory && keyword) {
+                    saveSearchHistory(keyword);
+                }
+                currentFilteredData = robotData.filter(item => {
+                    let categoryMatch = true;
+                    if (tagFilterList && tagFilterList.length > 0) {
+                        categoryMatch = tagFilterList.includes(item.category);
+                    } else {
+                        categoryMatch = !category || item.category === category;
+                    }
+                    const keyMatch = !keyword ||
+                        item.name.toLowerCase().includes(keyword) ||
+                        item.category.toLowerCase().includes(keyword) ||
+                        (item.col1 && item.col1.toLowerCase().includes(keyword)) ||
+                        (item.col2 && item.col2.toLowerCase().includes(keyword)) ||
+                        (item.summary && item.summary.toLowerCase().includes(keyword));
+                    return categoryMatch && keyMatch;
+                });
+                currentPage = 1;
+                renderTable();
+                saveSearchState();
+                updateFilterTip();
+            }
+
+            function updateFilterTip() {
+                let tipHtml = '';
+                if (tagFilterList && tagFilterList.length > 0) {
+                    tipHtml = `当前按标签筛选：<strong>${tagFilterList.join('、')}</strong> `;
+                    tipHtml += `<button class="dynamic-tag-btn clear-btn" id="dynamicTagBtn">清除标签筛选</button>`;
+                    $('#filter-tip').html(tipHtml).show();
+                } else if (lastTagFilterList && lastTagFilterList.length > 0) {
+                    tipHtml = `已清除标签筛选，可点击恢复：`;
+                    tipHtml += `<button class="dynamic-tag-btn restore-btn" id="dynamicTagBtn">恢复标签筛选</button>`;
+                    $('#filter-tip').html(tipHtml).show();
+                } else {
+                    const category = $("#categorySelect").val();
+                    if (category) {
+                        tipHtml = `当前分类：<strong>${category}</strong>  |  共 ${currentFilteredData.length} 条数据`;
+                        $('#filter-tip').html(tipHtml).show();
+                    } else if ($("#searchInput").val().trim()) {
+                        tipHtml = `当前搜索：<strong>${$("#searchInput").val().trim()}</strong>  |  共 ${currentFilteredData.length} 条数据`;
+                        $('#filter-tip').html(tipHtml).show();
+                    } else {
+                        $('#filter-tip').hide();
+                    }
+                }
+                $('#dynamicTagBtn').off('click').on('click', function() {
+                    if (tagFilterList && tagFilterList.length > 0) {
+                        clearTagFilter();
+                    } else if (lastTagFilterList && lastTagFilterList.length > 0) {
+                        restoreTagFilter();
+                    }
+                });
+            }
+
+            function clearTagFilter() {
+                if (tagFilterList && tagFilterList.length > 0) {
+                    lastTagFilterList = [...tagFilterList];
+                }
+                tagFilterList = null;
+                sessionStorage.removeItem('robotTagFilter');
+                $("#categorySelect").val('');
+                performSearch(false);
+            }
+
+            function restoreTagFilter() {
+                if (lastTagFilterList && lastTagFilterList.length > 0) {
+                    tagFilterList = [...lastTagFilterList];
+                    sessionStorage.setItem('robotTagFilter', tagFilterList.join(','));
+                    $("#categorySelect").val('');
+                    performSearch(false);
+                } else {
+                    alert('没有可恢复的标签筛选记录');
+                }
+            }
+
+            function saveSearchState() {
+                const state = {
+                    category: $("#categorySelect").val(),
+                    keyword: $("#searchInput").val().trim(),
+                    page: currentPage,
+                    tagFilter: tagFilterList ? tagFilterList.join(',') : null,
+                    lastTagFilter: lastTagFilterList ? lastTagFilterList.join(',') : null,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('robotSearchState', JSON.stringify(state));
+            }
+
+            function restoreSearchState() {
+                const savedState = JSON.parse(localStorage.getItem('robotSearchState'));
+                if (!savedState) return;
+                $("#categorySelect").val(savedState.category || '');
+                $("#searchInput").val(savedState.keyword || '');
+                currentPage = savedState.page || 1;
+                if (savedState.tagFilter) {
+                    tagFilterList = savedState.tagFilter.split(',');
+                } else {
+                    tagFilterList = null;
+                }
+                if (savedState.lastTagFilter) {
+                    lastTagFilterList = savedState.lastTagFilter.split(',');
+                } else {
+                    lastTagFilterList = null;
+                }
+                performSearch(false);
+            }
+
+            $("#clear-search-state").on('click', function() {
+                localStorage.removeItem('robotSearchState');
+                $("#categorySelect").val('');
+                $("#searchInput").val('');
+                currentPage = 1;
+                tagFilterList = null;
+                lastTagFilterList = null;
+                sessionStorage.removeItem('robotTagFilter');
+                performSearch(false);
+                alert('已清除所有搜索状态，已重置为全部数据');
+            });
+
+            $("#search-btn").on('click', () => {
+                if (tagFilterList) clearTagFilter();
+                performSearch(true);
+            });
+            $("#searchInput").keypress(e => e.which === 13 && (() => {
+                if (tagFilterList) clearTagFilter();
+                performSearch(true);
+            })());
+            $("#categorySelect").change(() => {
+                if (tagFilterList) clearTagFilter();
+                performSearch(false);
+            });
+
+            function getCurrentTime() {
+                const now = new Date();
+                return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+            }
+            function addBrowseRecord(itemName) {
+                if (!itemName) return;
+                let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
+                const currentTime = getCurrentTime();
+                const detailPath = `../robot-detail/detail.html?name=${encodeURIComponent(itemName)}`;
+                const existingIndex = browseHistory.findIndex(record => record.name === itemName);
+                if (existingIndex !== -1) browseHistory.splice(existingIndex, 1);
+                browseHistory.unshift({ name: itemName, time: currentTime, path: detailPath });
+                if (browseHistory.length > 30) browseHistory = history.slice(0, 30);
+                localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
+            }
+
+            function handleUrlParams() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const tagsParam = urlParams.get('tags');
+                const searchKeyword = urlParams.get('search');
+                if (tagsParam) {
+                    const tagArray = tagsParam.split(',').filter(t => t.trim());
+                    if (tagArray.length > 0) {
+                        tagFilterList = tagArray;
+                        sessionStorage.setItem('robotTagFilter', tagArray.join(','));
+                        $("#categorySelect").val('');
+                    }
+                } else if (searchKeyword) {
+                    const keyword = decodeURIComponent(searchKeyword);
+                    $("#searchInput").val(keyword);
+                }
+                if (!tagFilterList) {
+                    const savedTagFilter = sessionStorage.getItem('robotTagFilter');
+                    if (savedTagFilter) {
+                        tagFilterList = savedTagFilter.split(',');
+                        $("#categorySelect").val('');
+                    }
+                }
+            }
+
+            handleUrlParams();
+            const hasUrlSearch = (new URLSearchParams(window.location.search)).has('search');
+            if (!hasUrlSearch && !tagFilterList) {
+                restoreSearchState();
+                if (!localStorage.getItem('robotSearchState')) {
+                    performSearch(false);
+                }
+            } else {
+                performSearch(false);
+            }
+        });
+    </script>
+</body>
+</html>

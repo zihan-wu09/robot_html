@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器人科普 - 登录与注册</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../js/jquery.maphilight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../utils/supabase/supabase-config.js"></script>
+</head>
+<body>
+<header>
+    <h1>机器人科普</h1>
+    <ul>
+        <li><a href="../index.html">首页</a></li>
+        <li id="user-link"><a href="./denglu-zhuce.html">用户登录与注册</a></li>
+        <li><a href="../women/women.html">关于我们</a></li>
+        <li><a href="../fenleijiansuo/fenleijiansuo.html">分类检索</a></li>
+        <li><a href="../supabase_features/haoyouhudong/haoyouhudong.html">好友互动</a></li>
+        <li><a href="../tuisong/tuisong.html">内容推送</a></li>
+    </ul>
+</header>
+
+<main class="auth-page">
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="user-avatar"></div>
+        </div>
+        <div class="auth-tabs">
+            <button class="tab-btn active" data-tab="login">登录</button>
+            <button class="tab-btn" data-tab="register">注册</button>
+        </div>
+        <div class="auth-form login-form active">
+            <div class="form-group">
+                <input type="text" id="login-username" placeholder="账号" class="form-input">
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-password" placeholder="密码" class="form-input">
+            </div>
+            <div class="form-agreement">
+                <input type="checkbox" id="login-agreement">
+                <label for="login-agreement">我已认真阅读并接受 <a href="../免责声明/mianze.html">免责声明</a></label>
+            </div>
+            <button class="auth-btn" id="login-btn">登录</button>
+            <div class="tab-tip">没有账号，<a href="javascript:;" class="switch-to-register">去注册</a></div>
+        </div>
+        <div class="auth-form register-form">
+            <div class="form-group">
+                <input type="text" id="reg-username" placeholder="请输入账号" class="form-input">
+            </div>
+            <div class="form-group">
+                <input type="password" id="reg-password" placeholder="请输入密码" class="form-input">
+            </div>
+            <div class="form-group">
+                <input type="password" id="reg-confirm" placeholder="请确认密码" class="form-input">
+            </div>
+            <div class="form-agreement">
+                <input type="checkbox" id="register-agreement">
+                <label for="register-agreement">我已认真阅读并接受 <a href="../免责声明/mianze.html">免责声明</a></label>
+            </div>
+            <button class="auth-btn" id="register-btn">注册</button>
+            <div class="tab-tip">已有账号，<a href="javascript:;" class="switch-to-login">去登录</a></div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p><a href="#">了解更多机器人知识！</a></p>
+</footer>
+
+<script>
+$(document).ready(function() {
+    window.SupabaseAPI.checkAuth();
+
+    $('.tab-btn').on('click', function() {
+        const tab = $(this).data('tab');
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.auth-form').removeClass('active');
+        $(`.${tab}-form`).addClass('active');
+    });
+
+    $('.switch-to-register').click(() => $('.tab-btn[data-tab="register"]').click());
+    $('.switch-to-login').click(() => $('.tab-btn[data-tab="login"]').click());
+
+    function normalizeUsername(raw) {
+        return (raw || '')
+            .trim()
+            .replace(/["'`]/g, '')
+            .replace(/\s+/g, '');
+    }
+
+    function buildAuthEmail(username) {
+        const normalized = normalizeUsername(username).toLowerCase();
+        if (!/^[a-z0-9_.-]{1,32}$/.test(normalized)) return null;
+        return `${normalized}@robot.com`;
+    }
+
+    async function syncUserProfile(userId, username) {
+        try {
+            await window.SupabaseAPI.supabase
+                .from('user_profiles')
+                .upsert([
+                    {
+                        id: userId,
+                        username: username,
+                        nickname: username,
+                        created_at: new Date().toISOString()
+                    }
+                ], { onConflict: 'id' });
+        } catch (e) {}
+    }
+
+    $('#login-btn').on('click', async function() {
+        const username = normalizeUsername($('#login-username').val());
+        const password = $('#login-password').val().trim();
+        const agreed = $('#login-agreement').is(':checked');
+
+        if (!username || !password) return alert('请输入账号密码');
+        if (!agreed) return alert('请同意免责声明');
+
+        const email = buildAuthEmail(username);
+        if (!email) return alert('账号格式仅支持字母、数字、下划线、点、短横线');
+
+        try {
+            const { data, error } = await window.SupabaseAPI.supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert("账号或密码错误");
+                return;
+            }
+
+            await syncUserProfile(data.user.id, username);
+            localStorage.setItem('currentUser', username);
+            alert('登录成功');
+            window.location.href = '../index.html';
+        } catch (e) {
+            alert("登录失败");
+        }
+    });
+
+    $('#register-btn').on('click', async function() {
+        const username = normalizeUsername($('#reg-username').val());
+        const password = $('#reg-password').val().trim();
+        const confirm = $('#reg-confirm').val().trim();
+        const agreed = $('#register-agreement').is(':checked');
+
+        if (!username || !password || !confirm) return alert('请完整填写');
+        if (password !== confirm) return alert('两次密码不一致');
+        if (password.length < 6) return alert('密码至少6位');
+        if (!agreed) return alert('请同意免责声明');
+
+        const email = buildAuthEmail(username);
+        if (!email) return alert('账号格式仅支持字母、数字、下划线、点、短横线');
+
+        const registerBtn = $('#register-btn');
+        registerBtn.prop('disabled', true).text('注册中...');
+
+        try {
+            const { data, error } = await window.SupabaseAPI.supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: { data: { username: username } }
+            });
+
+            if (error) return alert("注册失败：" + error.message);
+
+            if (data?.user?.id) {
+                await syncUserProfile(data.user.id, username);
+            }
+
+            localStorage.setItem('currentUser', username);
+            alert('注册成功！');
+            window.location.href = '../index.html';
+        } catch (e) {
+            alert("注册异常");
+        } finally {
+            registerBtn.prop('disabled', false).text('注册');
+        }
+    });
+
+    async function checkAuth() {
+        const { data } = await window.SupabaseAPI.supabase.auth.getSession();
+        if (data.session) {
+            const user = localStorage.getItem('currentUser');
+            if (user) window.location.href = '../supabase_features/tiezi/user-posts.html';
+        }
+    }
+});
+</script>
+</body>
+</html>

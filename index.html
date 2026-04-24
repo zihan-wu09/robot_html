@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机知智汇 - 机器人知识科普平台</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="js/jquery.maphilight.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="js/three-vrm.js"></script>
+    <script src="shuziren/js/vrm-actions.js"></script>
+    <script src="shuziren/js/vrm-core.js"></script>
+    <script src="shuziren/js/voice-interaction.js"></script>
+    <script src="shuziren/js/vrm-map.js"></script>
+    <style>
+        /* 覆盖原有city-info-card样式，改为蓝色科技风九宫格 */
+        .city-info-card {
+            position: absolute;
+            left: 500px;
+            top: 120px;
+            width: 520px;
+            background: rgba(10, 25, 55, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(0, 255, 255, 0.1) inset;
+            padding: 20px 25px;
+            z-index: 10;
+            color: #e0f2fe;
+            font-family: 'Segoe UI', 'Poppins', 'Microsoft YaHei', sans-serif;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+        }
+        .city-info-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #00ffff, #0066ff);
+            border-radius: 30px;
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(4px);
+        }
+        .city-info-content h3 {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            background: linear-gradient(135deg, #fff, #88ddff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0,255,255,0.5);
+        }
+        .grid-9 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin: 20px 0 15px;
+        }
+        .stat-card-link {
+            text-decoration: none;
+            display: block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card {
+            background: rgba(0, 20, 40, 0.65);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 16px 8px;
+            text-align: center;
+            transition: inherit;
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+        .stat-card-link:hover .stat-card {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,150,255,0.2);
+            border-color: rgba(0,255,255,0.6);
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #88ddff, #00aaff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(0,200,255,0.3);
+        }
+        .stat-label {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: #bbddff;
+            font-weight: 500;
+        }
+        .card-footer {
+            text-align: center;
+            font-size: 14px;
+            color: #88ccff;
+            border-top: 1px solid rgba(0,255,255,0.3);
+            padding-top: 12px;
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+        @media (max-width: 1400px) {
+            .city-info-card {
+                left: 520px;
+                width: 480px;
+            }
+        }
+        @media (max-width: 1200px) {
+            .city-info-card {
+                left: 50%;
+                transform: translateX(-50%);
+                top: 200px;
+                width: 460px;
+            }
+            .grid-9 {
+                gap: 12px;
+            }
+            .stat-number {
+                font-size: 28px;
+            }
+        }
+        .map-img { cursor: pointer; }
+        area { cursor: pointer; }
+        canvas { pointer-events: none !important; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>机知智汇</h1>
+        <ul>
+            <li><a href="index.html">首页</a></li>
+            <li id="user-link"><a href="denglu-zhuce/denglu-zhuce.html">用户登录与注册</a></li>
+            <li><a href="women/women.html">关于我们</a></li>
+            <li><a href="fenleijiansuo/fenleijiansuo.html">分类检索</a></li>
+            <li><a href="supabase_features/haoyouhudong/haoyouhudong.html">好友互动</a></li>
+            <li><a href="tuisong/tuisong.html">内容推送</a></li>
+        </ul>
+    </header>
+
+    <main>
+        <section class="quote">
+            <img src="images/主页机器人图片.png" alt="主页机器人tu" class="map-img" usemap="#anhui-map">
+            <map name="anhui-map">
+                <area target="_self" alt="机器人" title="机器人" href="机器人九大主题/机器人九大主题.html" coords="199,41,207,45,215,46,224,48,230,52,236,62,238,73,238,89,238,97,238,107,237,115,230,123,224,126,221,131,215,131,216,138,214,145,222,143,230,144,240,146,247,151,257,157,262,163,270,167,276,168,282,173,287,181,289,191,287,202,282,209,278,213,282,222,290,250,282,260,290,271,300,269,303,276,308,289,311,301,316,312,319,322,323,333,325,341,317,337,318,344,322,353,325,362,325,373,321,387,314,392,300,399,298,391,295,384,303,383,311,379,308,372,309,366,303,363,305,353,301,345,294,346,293,336,286,329,279,319,273,312,268,300,264,290,263,278,268,276,264,265,259,261,257,254,244,260,242,276,242,287,240,298,249,297,254,294,258,309,252,316,248,321,252,330,260,330,266,329,269,340,271,355,274,360,273,379,274,398,273,416,272,432,271,452,277,455,279,462,281,473,277,478,269,480,272,490,273,501,269,510,252,554,243,551,241,558,250,569,258,580,275,594,281,600,283,610,273,612,258,613,248,614,236,610,228,605,218,605,205,602,207,580,213,568,213,560,207,554,210,540,216,516,223,491,231,475,238,474,238,461,230,451,221,424,218,400,224,392,222,380,224,371,220,367,211,370,195,368,192,385,194,391,192,410,189,426,186,442,182,455,180,479,183,487,180,508,181,517,177,528,172,548,168,566,161,561,159,569,163,582,167,595,170,604,177,610,178,620,172,623,151,622,144,624,131,622,130,614,123,610,123,596,127,581,131,574,132,567,126,567,126,542,132,517,134,496,137,484,142,476,149,472,152,466,146,459,142,426,140,395,140,374,143,356,136,349,137,336,140,325,148,323,147,311,154,301,163,295,171,292,169,283,172,277,173,256,165,253,158,254,153,250,148,240,145,230,144,221,139,236,135,247,132,255,126,256,121,271,127,273,126,282,123,299,118,313,109,333,106,343,110,353,111,361,113,375,106,373,102,361,93,365,92,376,97,384,104,385,110,387,109,394,108,399,101,396,92,395,86,392,81,388,78,380,76,369,79,354,82,345,82,337,72,338,76,326,78,317,75,307,75,293,78,276,82,260,90,255,98,255,100,263,107,260,107,251,104,241,108,224,113,219,117,203,104,203,103,194,101,181,104,170,110,160,117,156,125,155,132,154,139,154,143,158,148,149,156,144,164,141,175,139,182,138,171,131,176,125,168,125,166,104,163,83,166,67,174,54,186,45" shape="poly">
+            </map>ren
+            <h2>「解锁机器人世界：从科幻到现实的全民科普之旅」</h2>
+
+            <div class="city-info-card" id="robotStatCard">
+                <div class="city-info-content">
+                    <h3>🤖 中国机器人产业数据</h3>
+                    <div class="grid-9">
+                        <a href="主要种类/主要种类.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">8+</div><div class="stat-label">主要种类</div></div></a>
+                        <a href="发展阶段/发展阶段.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">4</div><div class="stat-label">发展阶段</div></div></a>
+                        <a href="应用场景/应用场景.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">12+</div><div class="stat-label">应用场景</div></div></a>
+                        <a href="国产机器人明星/国产机器人明星.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">12+</div><div class="stat-label">国产机器人明星</div></div></a>
+                        <a href="核心零部件/核心零部件.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">320+</div><div class="stat-label">核心零部件</div></div></a>
+                        <a href="行动方式种类/行动方式种类.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">8+</div><div class="stat-label">行动方式种类</div></div></a>
+                        <a href="专利数量/专利数量.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">1.2w+</div><div class="stat-label">专利数量</div></div></a>
+                        <a href="国家级实验室/国家级实验室.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">14+</div><div class="stat-label">国家级实验室</div></div></a>
+                        <a href="有趣知识/有趣知识.html" class="stat-card-link"><div class="stat-card"><div class="stat-number">18+</div><div class="stat-label">有趣知识</div></div></a>
+                    </div>
+                    <div class="card-footer">
+                        <i class="fas fa-chart-line" style="margin-right: 6px;"></i>数据基于2025年产业白皮书 · 动态更新
+                    </div>
+                </div>
+            </div>
+            <div id="avatar-container" class="avatar-wrap"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p><a href="https://baike.baidu.com/item/%E6%9C%BA%E5%99%A8%E4%BA%BA/888">点击这里了解更多机器人知识！</a></p>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            $('.map-img').maphilight({
+                fill: true,
+                fillColor: 'ffcc00',
+                fillOpacity: 0.5,
+                stroke: true,
+                strokeColor: 'ffffff',
+                strokeWidth: 2,
+                fade: true
+            });
+            $('canvas').css('pointer-events', 'none');
+        });
+    </script>
+</body>
+</html>

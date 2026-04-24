@@ -1,0 +1,260 @@
+/* 按 data-topic 分节的版式气质（在 topic-page.css 之后加载） */
+
+/* ===== 通用组件样式 ===== */
+.topic-kind-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--topic-accent-soft);
+  border: 1px solid var(--topic-glow);
+  color: var(--topic-accent);
+  vertical-align: middle;
+}
+
+.topic-card-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.topic-card-title-row h3 {
+  margin: 0 !important;
+}
+
+.topic-scenario-tag,
+.topic-terrain-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-subtle);
+  color: var(--topic-accent);
+}
+
+/* ===== 统一网格布局：除“发展阶段”外，所有主题都采用一行两个卡片的网格 ===== */
+.topic-page-body[data-topic='topic-main-types'] .topic-cards,
+.topic-page-body[data-topic='topic-scenarios'] .topic-cards,
+.topic-page-body[data-topic='topic-domestic-stars'] .topic-cards,
+.topic-page-body[data-topic='topic-core-parts'] .topic-cards,
+.topic-page-body[data-topic='topic-locomotion'] .topic-cards,
+.topic-page-body[data-topic='topic-patents'] .topic-cards,
+.topic-page-body[data-topic='topic-labs'] .topic-cards,
+.topic-page-body[data-topic='topic-fun-facts'] .topic-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.topic-page-body[data-topic='topic-main-types'] .topic-card-link,
+.topic-page-body[data-topic='topic-scenarios'] .topic-card-link,
+.topic-page-body[data-topic='topic-domestic-stars'] .topic-card-link,
+.topic-page-body[data-topic='topic-core-parts'] .topic-card-link,
+.topic-page-body[data-topic='topic-locomotion'] .topic-card-link,
+.topic-page-body[data-topic='topic-patents'] .topic-card-link,
+.topic-page-body[data-topic='topic-labs'] .topic-card-link,
+.topic-page-body[data-topic='topic-fun-facts'] .topic-card-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .topic-page-body[data-topic='topic-main-types'] .topic-cards,
+  .topic-page-body[data-topic='topic-scenarios'] .topic-cards,
+  .topic-page-body[data-topic='topic-domestic-stars'] .topic-cards,
+  .topic-page-body[data-topic='topic-core-parts'] .topic-cards,
+  .topic-page-body[data-topic='topic-locomotion'] .topic-cards,
+  .topic-page-body[data-topic='topic-patents'] .topic-cards,
+  .topic-page-body[data-topic='topic-labs'] .topic-cards,
+  .topic-page-body[data-topic='topic-fun-facts'] .topic-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== 主要种类：Hero 描述放宽宽度，尽可能一行显示 ===== */
+.topic-page-body[data-topic='topic-main-types'] .topic-hero p {
+  max-width: 1000px;   /* 足够容纳当前文本，避免过早换行 */
+  white-space: normal;
+}
+
+/* ===== 其他主题个性化微调 ===== */
+
+/* 国产明星：标题首字母放大 */
+.topic-page-body[data-topic='topic-domestic-stars'] .topic-card-body h3 {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.topic-page-body[data-topic='topic-domestic-stars'] .topic-card-body h3::first-letter {
+  font-size: 1.15em;
+  font-weight: 900;
+  color: var(--topic-accent);
+  margin-right: 2px;
+}
+
+/* 行动方式：自动编号 */
+.topic-card--mobility {
+  border-left: 3px solid var(--topic-accent); /* 改回和普通卡片一致的实线边框 */
+}
+.topic-card--mobility .topic-card-title-row h3::before {
+  content: counter(topic-step, decimal-leading-zero) ' ';
+  counter-increment: topic-step;
+  font-size: 0.75em;
+  font-weight: 800;
+  color: var(--topic-accent);
+  margin-right: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.topic-page-body[data-topic='topic-locomotion'] .topic-cards {
+  counter-reset: topic-step;
+}
+
+/* 专利数量：独立数据卡片条 */
+.topic-patents-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.topic-patent-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-height: 44px;
+  padding: 22px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--elev-1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+.topic-patent-stat:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--elev-2), 0 0 36px -14px var(--topic-glow);
+}
+.topic-patent-stat:focus-visible {
+  outline: 3px solid var(--topic-accent);
+  outline-offset: 2px;
+}
+.topic-patent-value {
+  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--topic-accent);
+  letter-spacing: -0.03em;
+}
+.topic-patent-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.topic-patent-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* 国家级实验室：卡片内链接单列 */
+.topic-card-link--lab {
+  grid-template-columns: 1fr;
+}
+.topic-lab-affiliation {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.topic-lab-focus {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* 编辑推荐卡片 */
+.topic-card--editorial .topic-card-link {
+  grid-template-columns: 1fr;
+}
+.topic-editorial-lede {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+  line-height: 1.55;
+}
+
+/* 规格卡片 */
+.topic-card--spec .topic-meta {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  font-feature-settings: 'tnum' 1;
+}
+.topic-card--spec .topic-desc {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* 引用卡片：现在和普通卡片视觉一致 */
+.topic-card--pull {
+  border-left-color: var(--topic-accent);
+  background: var(--surface-1); /* 改回和普通卡片一样的背景色 */
+}
+.pull-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.pull-quote h3 {
+  font-size: 1.2rem;
+  margin: 0 0 10px;
+  color: var(--text-primary);
+}
+.pull-quote .topic-meta {
+  font-style: italic;
+  color: var(--text-secondary);
+  border-top: none;
+  padding-top: 8px;
+}
+.pull-quote::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--topic-accent), transparent);
+  margin-bottom: 14px;
+  border-radius: 2px;
+}
+
+/* 发展阶段专属（保留原有纵向布局） */
+.topic-page-body[data-topic='topic-development'] .topic-river-hint {
+  color: var(--text-muted);
+}
+.topic-page-body[data-topic='topic-development'] .topic-river-wrap {
+  max-width: var(--topic-hero-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ===== 动效减弱 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .topic-patent-stat:hover {
+    transform: none;
+  }
+}

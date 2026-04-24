@@ -1,0 +1,232 @@
+/* 您的原有样式保持不变，仅微调了 h1 以适应新 logo + 红蓝配色优化（文字醒目） */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: black;
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+
+header ul {
+    position: absolute;
+    right: 5vw;
+    top: 0;
+    line-height: 80px;
+    list-style: none;
+}
+
+h1 {
+    color: white;
+    position: absolute;
+    left: 50px;
+    top: 2px;
+    width: 400px;
+    height: 80px;
+    line-height: 60px;
+    background-image: url(../images/logo1.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    text-indent: -9999px;
+}
+
+header li {
+    display: inline;
+    margin-right: 4vw;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+}
+
+header a:hover {
+    text-decoration: underline;
+}
+
+/* 底部按钮 */
+footer a {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: white;
+    text-decoration: none;
+    border: 3px solid #ACACAC;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    z-index: 1000;
+}
+
+/* 全站统一背景图 + 布局不变 */
+.auth-page {
+    padding-top: 80px;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 80px 20px 20px;
+    background-image: url("../images/主页大背景.png");
+    background-size: cover;
+    background-position: center 25%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+/* 登录注册容器 */
+.auth-container {
+    width: 420px;
+    background-color: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 2;
+}
+
+/* 顶部头部 → 保留蓝色 */
+.auth-header {
+    background-color: #2a6f97;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 用户头像 → 保留蓝色 */
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: #f5f5f5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: #2a6f97;
+}
+.user-avatar::before {
+    content: "\f007";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 600;
+}
+
+/* 标签切换栏 */
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: transparent;
+}
+.tab-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    background-color: transparent;
+    font-size: 18px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+}
+/* 🔥 激活标签：蓝色改为红色（醒目） */
+.tab-btn.active {
+    color: #d94848;
+    border-bottom: 2px solid #d94848;
+    font-weight: 800;
+}
+
+/* 表单样式 */
+.auth-form {
+    padding: 35px;
+    display: none;
+    background-color: transparent;
+}
+.auth-form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+/* 输入框聚焦 → 保留蓝色 */
+.form-input:focus {
+    border-color: #2a6f97;
+    box-shadow: 0 0 0 2px rgba(42, 111, 151, 0.1);
+}
+
+/* 协议区域 */
+.form-agreement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 14px;
+    color: #fff;
+}
+.form-agreement input {
+    margin-right: 10px;
+    width: 16px;
+    height: 16px;
+}
+/* 🔥 协议链接：蓝色改为红色（醒目） */
+.agreement-link {
+    color: #d94848;
+    text-decoration: none;
+    font-weight: 700;
+}
+.agreement-link:hover {
+    text-decoration: underline;
+}
+
+/* 登录注册按钮 → 保留蓝色 */
+.auth-btn {
+    width: 100%;
+    padding: 14px;
+    background-color: #2a6f97;
+    color: #ffffff;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 700;
+}
+.auth-btn:hover {
+    background-color: #1e4f6e;
+}
+
+/* 切换提示文字 */
+.tab-tip {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #fff;
+}
+/* 🔥 切换链接：蓝色改为红色（醒目） */
+.tab-tip a {
+    color: #d94848;
+    text-decoration: none;
+    font-weight: 700;
+}
+.tab-tip a:hover {
+    text-decoration: underline;
+}

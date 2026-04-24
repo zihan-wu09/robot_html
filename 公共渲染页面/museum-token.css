@@ -1,0 +1,114 @@
+/**
+ * 科普智枢 · 展馆设计令牌（科研展馆 + 数字面板）
+ * 背景素材：Unsplash 抽象科技/电路意象，经渐变压暗，仅供氛围；若外链失效则纯色底仍可用。
+ * Photo reference: https://unsplash.com/photos/abstract-blue — 使用 images.unsplash.com 静态参数链接。
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* 面 */
+  --surface-0: #0a0e14;
+  --surface-1: rgba(15, 22, 32, 0.88);
+  --surface-2: rgba(22, 32, 48, 0.92);
+
+  /* 边 */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* 文 */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  /* 圆角：展馆统一曲率 */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+
+  /* 阴影层级 elevation-1 卡片基底 / elevation-2 悬停抬起 */
+  --elev-1: 0 8px 24px rgba(0, 0, 0, 0.28);
+  --elev-2: 0 16px 40px rgba(0, 0, 0, 0.36);
+
+  /* 网格线（弱化存在感） */
+  --grid-line: rgba(148, 163, 184, 0.045);
+
+  /* 动效 */
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --dur-fast: 180ms;
+
+  /* 可选全屏背景图（高透明度叠色由页面 body::before 控制） */
+  --museum-bg-photo: url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=55&auto=format&fit=crop');
+
+  /* 与首页顶栏协调的链接色（供子站组件引用；首页在 style.css 同步） */
+  --museum-nav-link: #e2e8f0;
+  --museum-nav-link-hover: #7dd3fc;
+}
+
+.museum-font-heading,
+.robot-hub-hero-title,
+.topic-page-body .topic-hero h1,
+.topic-page-body .topic-hero-badge,
+.detail-hero h1,
+.detail-kicker {
+  font-family: 'Exo', 'Noto Sans SC', sans-serif;
+}
+
+.museum-font-body,
+.robot-hub-body,
+.topic-page-body,
+.detail-body {
+  font-family: 'Noto Sans SC', 'Segoe UI', sans-serif;
+}
+
+.museum-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+  }
+}
+
+/* —— 子站页面共用的展馆底图叠层（accent 径向光斑由各页 [data-topic] 定义）—— */
+.robot-hub-body {
+  background-color: var(--surface-0);
+  background-image: linear-gradient(168deg, rgba(5, 10, 20, 0.92) 0%, rgba(10, 18, 32, 0.9) 52%, rgba(4, 10, 18, 0.92) 100%), var(--museum-bg-photo);
+  background-size: auto, cover;
+  background-position: 0 0, center;
+  background-attachment: fixed, fixed;
+}
+
+.topic-page-body {
+  background-color: var(--surface-0);
+  background-image: radial-gradient(ellipse 120% 80% at 50% -20%, var(--topic-accent-soft), transparent 52%),
+    linear-gradient(165deg, rgba(5, 10, 20, 0.93) 0%, rgba(8, 16, 28, 0.9) 45%, rgba(5, 12, 18, 0.93) 100%), var(--museum-bg-photo);
+  background-size: auto, auto, cover;
+  background-position: 0 0, 0 0, center;
+  background-attachment: fixed, fixed, fixed;
+}
+
+.detail-body {
+  --detail-accent-dim: rgba(34, 211, 238, 0.15);
+  background-color: var(--surface-0);
+  background-image: radial-gradient(ellipse 100% 70% at 50% -25%, var(--detail-accent-dim), transparent 55%),
+    linear-gradient(168deg, rgba(4, 9, 16, 0.93) 0%, rgba(10, 21, 34, 0.9) 40%, rgba(5, 12, 20, 0.93) 100%), var(--museum-bg-photo);
+  background-size: auto, auto, cover;
+  background-position: 0 0, 0 0, center;
+  background-attachment: fixed, fixed, fixed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .robot-hub-body,
+  .topic-page-body,
+  .detail-body {
+    background-attachment: scroll, scroll;
+  }
+
+  .topic-page-body,
+  .detail-body {
+    background-attachment: scroll, scroll, scroll;
+  }
+}

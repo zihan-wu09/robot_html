@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机知智汇 - 免责声明</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- 严格对照参考代码引入资源 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="../js/jquery.maphilight.min.js"></script>
+    <script src="../js/auth.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 固定头部导航栏：完全复刻参考代码，路径100%一致 -->
+    <header>
+        <h1>机知智汇</h1>
+        <ul>
+            <li><a href="../index.html">首页</a></li>
+            <li id="user-link"><a href="../denglu-zhuce/denglu-zhuce.html">用户登录与注册</a></li>
+            <li><a href="../women/women.html">关于我们</a></li>
+            <li><a href="../fenleijiansuo/fenleijiansuo.html">分类检索</a></li>
+        </ul>
+    </header>
+
+    <!-- 免责声明主体内容 -->
+    <main class="disclaimer-page">
+        <div class="disclaimer-doc">
+            <h2 class="disclaimer-title">免责声明</h2>
+            <div class="disclaimer-content">
+                <p class="disclaimer-intro">
+                    欢迎访问机知智汇 — 机器人知识科普平台（以下简称“本平台”）。本平台提供VRM数字人互动、机器人科普讲解、知识展示等公益性服务，您在使用本平台前，请仔细阅读以下免责声明：
+                </p>
+
+                <h3 class="disclaimer-subtitle">一、服务内容与功能说明</h3>
+                <p>
+                    本平台提供数字人模型演示、语音播报、动作互动、机器人科普知识展示等功能，所有内容仅供学习、参考与娱乐使用，不构成专业技术指导或商业建议。
+                </p>
+
+                <h3 class="disclaimer-subtitle">二、使用风险提示</h3>
+                <p>
+                    您在使用本平台的数字人互动、语音播放、动作触发等功能时，需自行承担使用风险。因设备兼容性、网络环境、操作不当等原因导致的功能异常，本平台不承担任何责任。
+                </p>
+
+                <h3 class="disclaimer-subtitle">三、知识产权说明</h3>
+                <p>
+                    本平台的VRM数字人模型、互动代码、语音音频、页面设计、科普文案等原创内容受知识产权保护；未经授权，禁止复制、传播、商用或二次修改。部分素材来源于开源共享渠道，版权归原作者所有。
+                </p>
+
+                <h3 class="disclaimer-subtitle">四、模型与功能免责</h3>
+                <p>
+                    本平台数字人模型、动作动画、语音合成等功能为演示效果，我们不保证模型加载、动作执行、语音播放的绝对稳定性。因浏览器、硬件配置导致的异常，本平台不承担赔偿责任。
+                </p>
+
+                <h3 class="disclaimer-subtitle">五、第三方资源与链接</h3>
+                <p>
+                    本平台包含的第三方链接、开源库、插件仅为方便使用提供整合，不对第三方资源的安全性、合法性、隐私政策承担任何责任。
+                </p>
+
+                <h3 class="disclaimer-subtitle">六、免责声明的修改</h3>
+                <p>
+                    本平台有权随时修改本免责声明，修改后的内容将在本页面公示，您继续使用本平台即视为接受最新版本的免责条款。
+                </p>
+
+                <p class="disclaimer-contact">
+                    联系我们：若您对本声明、数字人服务有疑问，可通过“关于我们”页面与我们沟通处理。
+                </p>
+
+                <p class="disclaimer-date">
+                    最后更新时间：2025年
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 底部链接：完全复刻参考代码格式 -->
+    <footer>
+        <p><a href="https://baike.baidu.com/item/%E6%9C%BA%E5%99%A8%E4%BA%BA/888">点击这里了解更多机器人知识！</a></p>
+    </footer>
+
+    <script>
+        $(document).ready(function() {
+            if ($('.map-img').length) {
+                $('.map-img').maphilight({
+                    fill: true,
+                    fillColor: 'ffcc00',
+                    fillOpacity: 0.5,
+                    stroke: true,
+                    strokeColor: 'ffffff',
+                    strokeWidth: 2,
+                    fade: true
+                });
+                $('canvas').css('pointer-events', 'none');
+            }
+        });
+    </script>
+</body>
+</html>

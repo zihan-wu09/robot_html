@@ -1,0 +1,84 @@
+/* 您的原有样式保持不变，仅微调了 h1 以适应新 logo */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --museum-nav-link: #e2e8f0;
+    --museum-nav-link-hover: #7dd3fc;
+}
+
+/* 仅 body 直接子级顶栏，避免 main 内 detail-hero 等误用固定定位 */
+body > header {
+    background-color: black;
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+
+body > header ul {
+    position: absolute;
+    right: 5vw;
+    top: 0;
+    line-height: 80px;
+    list-style: none;
+}
+
+/* 仅站点顶栏 Logo，避免误伤正文区 h1（如主题/条目详情标题） */
+body > header h1 {
+    color: white;
+    position: absolute;
+    left: 50px;
+    top: 2px;
+    width: 400px;          /* 根据需要调整logo宽度 */
+    height: 80px;
+    line-height: 60px;
+    background-image: url(../images/logo1.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    text-indent: -9999px;
+}
+
+body > header li {
+    display: inline;
+    margin-right: 4vw;
+}
+
+body > header a {
+    color: var(--museum-nav-link);
+    text-decoration: none;
+    transition: color 0.18s ease, text-decoration-color 0.18s ease;
+}
+
+body > header a:hover {
+    color: var(--museum-nav-link-hover);
+    text-decoration: underline;
+    text-decoration-color: var(--museum-nav-link-hover);
+}
+
+body > header a:focus-visible {
+    outline: 2px solid var(--museum-nav-link-hover);
+    outline-offset: 3px;
+}
+
+/* 底部按钮 */
+footer a {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: white;
+    text-decoration: none;
+    border: 3px solid #ACACAC;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    z-index: 1000;
+}
+
