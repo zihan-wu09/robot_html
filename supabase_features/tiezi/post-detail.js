@@ -29,10 +29,14 @@ async function initDetailPage() {
     }
 
     // 获取当前登录用户
+    const localUser = localStorage.getItem('currentUser');
     const { data: { user } } = await window.SupabaseAPI.supabase.auth.getUser();
     currentUser = user;
-    if (!currentUser) {
-        alert('请先登录');
+    if (!localUser || !currentUser) {
+        if (currentUser && !localUser && window.SupabaseAPI?.supabase?.auth) {
+            await window.SupabaseAPI.supabase.auth.signOut();
+        }
+        alert('请先登录或注册后再使用帖子功能');
         location.href = '../../denglu-zhuce/denglu-zhuce.html';
         return;
     }

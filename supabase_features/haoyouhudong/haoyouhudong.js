@@ -38,10 +38,16 @@ function updateUserNavLink() {
 
 // ==================== DOM 加载完成 ====================
 document.addEventListener('DOMContentLoaded', async () => {
+    const localUser = localStorage.getItem('currentUser');
     currentUser = await window.SupabaseAPI.getCurrentUser();
     updateUserNavLink();
     
-    if (!currentUser) {
+    if (!localUser || !currentUser) {
+        // 本地登录态与 Supabase 会话任一缺失都视为未登录
+        if (currentUser && !localUser && window.SupabaseAPI?.supabase?.auth) {
+            await window.SupabaseAPI.supabase.auth.signOut();
+        }
+        alert('请先登录或注册后再使用好友互动功能');
         location.href = '../../denglu-zhuce/denglu-zhuce.html';
         return;
     }
