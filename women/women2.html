@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- 使用本地 maphilight，jQuery 继续从 CDN 加载（若被拦截也可换本地） -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="js/jquery.maphilight.min.js"></script>
+    <script src="../js/jquery.maphilight.min.js"></script>
+    <script src="../js/auth.js"></script>
     <!-- 👇 新增：Font Awesome 图标库（用于邮箱图标，不影响其他） -->
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -17,9 +18,11 @@
         <h1>智承皖遗</h1>
         <ul>
             <li><a href="../index.html">首页</a></li>
-            <li><a href="../denglu-zhuce/denglu-zhuce.html">用户登录与注册</a></li>
+            <li id="user-link"><a href="../denglu-zhuce/denglu-zhuce.html">用户登录与注册</a></li>
             <li><a href="../women/women.html">关于我们</a></li>
             <li><a href="../fenleijiansuo/fenleijiansuo.html">分类检索</a></li>
+            <li><a href="../supabase_features/haoyouhudong/haoyouhudong.html">好友互动</a></li>
+            <li><a href="../tuisong/tuisong.html">内容推送</a></li>
         </ul>
     </header>
 
