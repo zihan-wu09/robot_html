@@ -512,7 +512,7 @@
       if (main) {
         // ========== 第1处修改：错误页面的返回路径 ==========
         main.innerHTML =
-          '<div class="detail-error"><p>未找到对应条目，请从主题列表进入。</p><a class="detail-back" href="/机器人九大主题/机器人九大主题.html">返回九大主题</a></div>';
+          '<div class="detail-error"><p>未找到对应条目，请从主题列表进入。</p><a class="detail-back" href="../../机器人九大主题/机器人九大主题.html">返回九大主题</a></div>';
       }
       document.title = '未找到 - 科普智枢';
       return;

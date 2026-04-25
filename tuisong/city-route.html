@@ -61,7 +61,7 @@
 </header>
 
 <main class="main-content">
-    <a href="javascript:history.back()" class="back-btn"><i class="fas fa-arrow-left"></i> 返回上一页</a>
+    <a href="./tuisong.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回为你推荐</a>
     <h2 id="topicTitle" class="section-title"></h2>
     <div class="route-detail-card">
         <img id="detailImage" class="route-detail-image" alt="">
@@ -77,6 +77,13 @@
 <script src="./tuisong-shared.js"></script>
 <script>
     (function() {
+        var currentUserForGuard = localStorage.getItem('currentUser');
+        if (!currentUserForGuard) {
+            alert('请先登录后使用内容推送功能');
+            window.location.href = '../denglu-zhuce/denglu-zhuce.html';
+            return;
+        }
+
         var Snav = window.TUISONG_SHARED;
         if (Snav && Snav.updateTuisongNav) {
             Snav.updateTuisongNav();

@@ -315,7 +315,11 @@
             let tagFilterList = null;
             let lastTagFilterList = null;
 
-            function resolveDetailPath(itemName, itemCategory) {
+            function normalizeHistoryPath(path) {
+                return String(path || '').replace(/^(\.\.\/)+/, '');
+            }
+
+            function resolveDetailPath(itemName, itemCategory, forHistory = false) {
                 const topics = window.ROBOT_TOPICS || {};
                 const topicKeys = Object.keys(topics);
                 for (let i = 0; i < topicKeys.length; i++) {
@@ -325,14 +329,16 @@
                     const items = Array.isArray(topic.items) ? topic.items : [];
                     const idx = items.findIndex(it => it && it.title === itemName);
                     if (idx >= 0) {
-                        return `../公共渲染页面/公共卡片页面/detail.html?topic=${encodeURIComponent(topicKey)}&item=${idx}`;
+                        const detailPath = `../公共渲染页面/公共卡片页面/detail.html?topic=${encodeURIComponent(topicKey)}&item=${idx}`;
+                        return forHistory ? normalizeHistoryPath(detailPath) : detailPath;
                     }
                 }
                 const categoryMap = window.ROBOT_CATEGORY_TO_TOPIC_FILE || {};
                 if (itemCategory && categoryMap[itemCategory]) {
-                    return categoryMap[itemCategory];
+                    return forHistory ? normalizeHistoryPath(categoryMap[itemCategory]) : categoryMap[itemCategory];
                 }
-                return `../fenleijiansuo/fenleijiansuo.html?search=${encodeURIComponent(itemName)}`;
+                const fallbackPath = `../fenleijiansuo/fenleijiansuo.html?search=${encodeURIComponent(itemName)}`;
+                return forHistory ? normalizeHistoryPath(fallbackPath) : fallbackPath;
             }
 
             function saveSearchHistory(keyword) {
@@ -575,7 +581,7 @@
                 if (!itemName) return;
                 let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
                 const currentTime = getCurrentTime();
-                const detailPath = resolveDetailPath(itemName, itemCategory);
+                const detailPath = resolveDetailPath(itemName, itemCategory, true);
                 const existingIndex = browseHistory.findIndex(record => record.name === itemName);
                 if (existingIndex !== -1) browseHistory.splice(existingIndex, 1);
                 browseHistory.unshift({ name: itemName, time: currentTime, path: detailPath });

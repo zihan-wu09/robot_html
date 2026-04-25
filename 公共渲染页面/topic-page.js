@@ -253,8 +253,8 @@
     var ix = order.indexOf(topicKey);
     var prevKey = ix > 0 ? order[ix - 1] : null;
     var nextKey = ix >= 0 && ix < order.length - 1 ? order[ix + 1] : null;
-    var prevFile = prevKey ? keyToFile[prevKey] : null;
-    var nextFile = nextKey ? keyToFile[nextKey] : null;
+    var prevFile = prevKey ? appendFromTuisong(keyToFile[prevKey]) : null;
+    var nextFile = nextKey ? appendFromTuisong(keyToFile[nextKey]) : null;
     var prevTitle = prevKey && topics[prevKey] ? topics[prevKey].title : '';
     var nextTitle = nextKey && topics[nextKey] ? topics[nextKey].title : '';
 
@@ -270,7 +270,7 @@
     }
     navHtml += '</div>';
     navHtml +=
-      '<a class="topic-hub-link" href="../机器人九大主题/机器人九大主题.html"><i class="fas fa-th-large" aria-hidden="true"></i> 九大主题总览</a>';
+      '<a class="topic-hub-link" href="' + appendFromTuisong('../机器人九大主题/机器人九大主题.html') + '"><i class="fas fa-th-large" aria-hidden="true"></i> 九大主题总览</a>';
     navHtml += '<div class="topic-nav-side topic-nav-side--end">';
     if (nextFile) {
       navHtml +=

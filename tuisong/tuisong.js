@@ -26,6 +26,10 @@ function getCurrentUser() {
     return localStorage.getItem("currentUser");
 }
 
+function normalizeHistoryPath(path) {
+    return String(path || "").replace(/^(\.\.\/)+/, "");
+}
+
 function readLsJson(key, fallback) {
     try {
         const raw = localStorage.getItem(key);
@@ -320,7 +324,7 @@ function viewDetail(nameEnc, topicKey, itemIdx) {
     const newRecord = {
         name: decoded,
         time: new Date().toLocaleString(),
-        path: targetUrl
+        path: normalizeHistoryPath(targetUrl)
     };
     browseHistory = browseHistory.filter((r) => r.name !== decoded);
     browseHistory.unshift(newRecord);
