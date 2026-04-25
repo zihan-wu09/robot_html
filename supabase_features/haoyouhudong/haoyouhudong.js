@@ -130,6 +130,48 @@ function formatTime(dateString) {
     return `${date.getMonth() + 1}/${date.getDate()} ${date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}`;
 }
 
+function normalizeTagList(input) {
+    if (!Array.isArray(input)) return [];
+    const cleaned = input
+        .map((tag) => (typeof tag === 'string' ? tag.trim() : ''))
+        .filter(Boolean);
+    return [...new Set(cleaned)];
+}
+
+function readLocalFavoriteTags() {
+    try {
+        const raw = localStorage.getItem('favoriteTags');
+        if (!raw) return [];
+        return normalizeTagList(JSON.parse(raw));
+    } catch (e) {
+        return [];
+    }
+}
+
+async function resolveCurrentUserTags() {
+    const profileTags = normalizeTagList(currentUserProfile?.tags);
+    if (profileTags.length > 0) return profileTags;
+
+    const localTags = readLocalFavoriteTags();
+    if (!localTags.length || !currentUser?.id || !window.SupabaseAPI?.supabase) {
+        return localTags;
+    }
+
+    try {
+        // 用户仅在本地配置过标签时，同步到 Supabase，避免推荐逻辑误判为“无标签”
+        const { error } = await window.SupabaseAPI.supabase
+            .from('user_profiles')
+            .update({ tags: localTags })
+            .eq('id', currentUser.id);
+        if (!error) {
+            currentUserProfile = { ...(currentUserProfile || {}), tags: localTags };
+        }
+    } catch (e) {
+        console.warn('同步标签到 Supabase 失败:', e);
+    }
+    return localTags;
+}
+
 // ==================== 好友申请红点提醒 ====================
 const badgeStyle = document.createElement('style');
 badgeStyle.textContent = `
@@ -642,8 +684,7 @@ async function loadRecommendedUsers() {
     const recEl = document.getElementById('recommendResults');
     recEl.innerHTML = '<div style="text-align:center;padding:20px;">寻找同好中...</div>';
 
-    const myProfile = await window.SupabaseAPI.getUserProfile(currentUser.id);
-    const myTags = myProfile?.tags || [];
+    const myTags = await resolveCurrentUserTags();
     const myFriends = await window.SupabaseAPI.getMyFriends(currentUser.id);
     const friendIds = myFriends.map(f => f.id);
 

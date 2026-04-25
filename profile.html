@@ -665,8 +665,24 @@
                 }
                 renderTags();
             });
-            $('#saveTagsBtn').on('click', () => {
+            $('#saveTagsBtn').on('click', async () => {
                 localStorage.setItem('favoriteTags', JSON.stringify(selectedTags));
+
+                // 同步到 Supabase，确保好友互动“标签推荐”读取到最新标签
+                try {
+                    if (window.SupabaseAPI?.supabase?.auth) {
+                        const { data: { user } } = await window.SupabaseAPI.supabase.auth.getUser();
+                        if (user?.id) {
+                            await window.SupabaseAPI.supabase
+                                .from('user_profiles')
+                                .update({ tags: selectedTags })
+                                .eq('id', user.id);
+                        }
+                    }
+                } catch (err) {
+                    console.warn('标签同步到 Supabase 失败:', err);
+                }
+
                 alert('标签已保存');
             });
 
