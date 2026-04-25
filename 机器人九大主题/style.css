@@ -75,17 +75,17 @@ footer a {
 }
 
 /* ======================
-   机器人九大主题页 - 专属样式
-   说明：仅写本页面内容样式，不覆盖全局style.css的header/footer/重置
+   机器人九大主题页 - 专属样式（使用高优先级选择器防止被覆盖）
    ====================== */
 
-/* 页面背景：深色科技风，和参考图一致 */
-body {
+/* 页面背景：深色科技风，必须使用 body.hub-home 提高优先级 */
+body.hub-home {
     background-color: #121826;
-    background-image: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.95));
+    background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)), url("../images/主页大背景.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    background-repeat: no-repeat;
     color: #e2e8f0;
 }
 
@@ -117,7 +117,7 @@ body {
     margin: 0 auto;
 }
 
-/* 卡片网格：3列布局，和参考图一致 */
+/* 卡片网格：3列布局 */
 .hub-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -156,7 +156,7 @@ body {
 }
 .hub-card-icon {
     font-size: 1.5rem;
-    color: #7dd3fc; /* 和你项目统一的蓝色主题色 */
+    color: #7dd3fc;
     margin-right: 10px;
 }
 .hub-label {
@@ -179,7 +179,7 @@ body {
     margin: 0;
 }
 
-/* 响应式适配：平板/手机自动变列 */
+/* 响应式适配 */
 @media (max-width: 900px) {
     .hub-grid {
         grid-template-columns: repeat(2, 1fr);

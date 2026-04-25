@@ -275,7 +275,7 @@ function renderTravelRouteRecommendations() {
         <div class="route-card" onclick="goToRoutePage('${encodeURIComponent(item.topicKey)}', ${item.recommendDays})">
             <div class="card-image">
                 ${imgInner}
-                <span class="route-badge">${item.recommendDays}日路线</span>
+                <span class="route-badge">优质学习内容</span>
             </div>
             <div class="card-content">
                 <div class="card-title">${escapeHtml(item.title)} 学习路线</div>

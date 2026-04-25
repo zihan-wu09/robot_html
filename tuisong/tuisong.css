@@ -11,16 +11,6 @@ body {
     color: #0f172a;
 }
 
-header {
-    background-color: #000;
-    height: 80px;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-}
-
 h1 {
     color: #fff;
     position: absolute;
@@ -36,20 +26,31 @@ h1 {
     text-indent: -9999px;
 }
 
+header {
+    background-color: black;
+    height: 80px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+}
+
 header ul {
     position: absolute;
     right: 5vw;
     top: 0;
     line-height: 80px;
+    list-style: none;
 }
 
 header li {
     display: inline;
-    margin-right: 3vw;
+    margin-right: 4vw;
 }
 
 header a {
-    color: #fff;
+    color: white;
     text-decoration: none;
 }
 
