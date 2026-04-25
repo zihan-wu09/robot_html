@@ -17,6 +17,25 @@
     return document.body.getAttribute('data-topic-layout') || '';
   }
 
+  function isFromTuisong() {
+    var p = new URLSearchParams(window.location.search);
+    return p.get('from') === 'tuisong';
+  }
+
+  function appendFromTuisong(url) {
+    if (!isFromTuisong()) return url;
+    var joiner = url.indexOf('?') === -1 ? '?' : '&';
+    return url + joiner + 'from=tuisong';
+  }
+
+  function buildBackToTuisongLink() {
+    if (!isFromTuisong()) return '';
+    return (
+      '<a class="topic-return-link" href="../tuisong/tuisong.html">' +
+      '<i class="fas fa-arrow-left" aria-hidden="true"></i> 返回为你推荐</a>'
+    );
+  }
+
   function twoDigits(n) {
     var s = String(n);
     return s.length < 2 ? '0' + s : s;
@@ -70,6 +89,7 @@
           encodeURIComponent(topicKey) +
           '&item=' +
           idx;
+        detailHref = appendFromTuisong(detailHref);
         return (
           '<a role="listitem" id="item-' +
           idx +
@@ -97,6 +117,7 @@
       .join('');
 
     return (
+      buildBackToTuisongLink() +
       '<section class="topic-hero"><div class="topic-hero-inner">' +
       '<div class="topic-hero-badge"><i class="fas ' +
       escapeHtml(icon) +
@@ -157,6 +178,7 @@
       encodeURIComponent(topicKey) +
       '&item=' +
       idx;
+    detailHref = appendFromTuisong(detailHref);
 
     var cardClass = 'topic-card';
     if (topicKey === 'topic-domestic-stars') cardClass += ' topic-card--editorial';
@@ -268,7 +290,7 @@
       return;
     }
 
-    var hero = buildTopicHero(topic, icon);
+    var hero = buildBackToTuisongLink() + buildTopicHero(topic, icon);
     var toc = wrapToc(tocItems);
     
     var cards = items

@@ -308,9 +308,13 @@ function viewDetail(nameEnc, topicKey, itemIdx) {
     const idx = typeof itemIdx === "number" && !Number.isNaN(itemIdx) ? itemIdx : 0;
     const topicPageMap = window.ROBOT_TOPIC_KEY_TO_FILE || {};
     const mappedTopicPage = topicKey && typeof topicKey === "string" ? topicPageMap[topicKey] : "";
-    const targetUrl = mappedTopicPage
+    let targetUrl = mappedTopicPage
         ? mappedTopicPage
         : `../fenleijiansuo/fenleijiansuo.html?search=${encodeURIComponent(decoded)}`;
+    if (mappedTopicPage) {
+        const joiner = targetUrl.indexOf("?") === -1 ? "?" : "&";
+        targetUrl = `${targetUrl}${joiner}from=tuisong`;
+    }
     const currentUser = getCurrentUser();
     let browseHistory = getBrowseHistory();
     const newRecord = {

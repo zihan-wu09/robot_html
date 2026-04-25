@@ -364,6 +364,11 @@
     return { topic: topic, index: -1 };
   }
 
+  function isFromTuisong() {
+    var p = new URLSearchParams(window.location.search);
+    return p.get('from') === 'tuisong';
+  }
+
   function resolveLayout(topicKey, detail) {
     if (detail && detail.layout) return detail.layout;
     if (topicKey === 'topic-development') return 'timeline';
@@ -534,8 +539,8 @@
     document.title = item.title + ' · ' + topic.title + ' - 科普智枢';
 
     // ========== 第2处修改：返回按钮的路径生成逻辑 ==========
-    var backHref = 'javascript:history.back()';
-    var backLabel = '返回「' + topic.title + '」';
+    var backHref = isFromTuisong() ? '../../tuisong/tuisong.html' : 'javascript:history.back()';
+    var backLabel = isFromTuisong() ? '返回为你推荐' : '返回「' + topic.title + '」';
 
     var icon = topic.icon || 'fa-cube';
 
@@ -544,7 +549,7 @@
 
     // ========== 零出错修复版：无多余字符，保留浏览器返回上一页逻辑 ==========
   mainEl.innerHTML =
-  '<a class="detail-back" href="javascript:history.back();">' +
+  '<a class="detail-back" href="' + escapeHtml(backHref) + '">' +
   '<i class="fas fa-arrow-left" aria-hidden="true"></i> ' +
   escapeHtml(backLabel) +
   '</a>' +
