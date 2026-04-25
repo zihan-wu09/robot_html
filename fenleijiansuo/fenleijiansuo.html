@@ -156,6 +156,7 @@
         <p><a href="https://baike.baidu.com/item/%E6%9C%BA%E5%99%A8%E4%BA%BA/888">点击这里了解更多机器人知识！</a></p>
     </footer>
 
+    <script src="../公共渲染页面/robot-topics-data.js"></script>
     <script>
         // ===== 完整机器人数据集（同步自 robot-topics-data.js） =====
         const robotData = [
@@ -314,6 +315,26 @@
             let tagFilterList = null;
             let lastTagFilterList = null;
 
+            function resolveDetailPath(itemName, itemCategory) {
+                const topics = window.ROBOT_TOPICS || {};
+                const topicKeys = Object.keys(topics);
+                for (let i = 0; i < topicKeys.length; i++) {
+                    const topicKey = topicKeys[i];
+                    const topic = topics[topicKey];
+                    if (!topic || topic.title !== itemCategory) continue;
+                    const items = Array.isArray(topic.items) ? topic.items : [];
+                    const idx = items.findIndex(it => it && it.title === itemName);
+                    if (idx >= 0) {
+                        return `../公共渲染页面/公共卡片页面/detail.html?topic=${encodeURIComponent(topicKey)}&item=${idx}`;
+                    }
+                }
+                const categoryMap = window.ROBOT_CATEGORY_TO_TOPIC_FILE || {};
+                if (itemCategory && categoryMap[itemCategory]) {
+                    return categoryMap[itemCategory];
+                }
+                return `../fenleijiansuo/fenleijiansuo.html?search=${encodeURIComponent(itemName)}`;
+            }
+
             function saveSearchHistory(keyword) {
                 if (!keyword || keyword.trim() === '') return;
                 let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
@@ -359,7 +380,7 @@
                     const tr = $(`
                         <tr>
                             <td>${start + i + 1}</td>
-                            <td class="name" data-name="${item.name.replace(/"/g, '&quot;')}">${item.name}</td>
+                            <td class="name" data-name="${item.name.replace(/"/g, '&quot;')}" data-category="${item.category.replace(/"/g, '&quot;')}">${item.name}</td>
                             <td>${item.category}</td>
                             <td>${col1Value}</td>
                             <td>${col2Value}</td>
@@ -369,9 +390,11 @@
                 });
                 tbody.off('click', '.name').on('click', '.name', function () {
                     const name = $(this).data('name');
+                    const category = $(this).data('category');
                     saveSearchState();
-                    addBrowseRecord(name);
-                    location.href = `../robot-detail/detail.html?name=${encodeURIComponent(name)}`;
+                    const detailPath = resolveDetailPath(name, category);
+                    addBrowseRecord(name, category);
+                    location.href = detailPath;
                 });
                 renderPagination();
             }
@@ -548,15 +571,15 @@
                 const now = new Date();
                 return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
             }
-            function addBrowseRecord(itemName) {
+            function addBrowseRecord(itemName, itemCategory) {
                 if (!itemName) return;
                 let browseHistory = JSON.parse(localStorage.getItem('browseHistory')) || [];
                 const currentTime = getCurrentTime();
-                const detailPath = `../robot-detail/detail.html?name=${encodeURIComponent(itemName)}`;
+                const detailPath = resolveDetailPath(itemName, itemCategory);
                 const existingIndex = browseHistory.findIndex(record => record.name === itemName);
                 if (existingIndex !== -1) browseHistory.splice(existingIndex, 1);
                 browseHistory.unshift({ name: itemName, time: currentTime, path: detailPath });
-                if (browseHistory.length > 30) browseHistory = history.slice(0, 30);
+                if (browseHistory.length > 30) browseHistory = browseHistory.slice(0, 30);
                 localStorage.setItem('browseHistory', JSON.stringify(browseHistory));
             }
 
